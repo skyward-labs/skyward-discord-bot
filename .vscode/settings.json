@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/37dd0a3d-fa7f-4327-abb7-a92a1ef3061e/resourceGroups/skyward-labs-01/providers/Microsoft.Web/sites/skyward-discord-bot",
+    "appService.deploySubpath": "."
+}
