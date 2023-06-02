@@ -18,10 +18,10 @@ module.exports = {
 				params: { prompt: interaction.options.getString('prompt'), }
 			});
 
-			const answerParts = await this.generateAnswerParts(response.data);
+			const responseParts = await this.generateResponseParts(response.data);
 
-			answerParts.forEach(async element => {
-				interaction.channel.send(element);
+			responseParts.forEach(async part => {
+				interaction.channel.send(part);
 			});
 
 			await interaction.editReply('Done!');
@@ -31,37 +31,37 @@ module.exports = {
 		}
 	},
 
-	async generateAnswerParts(answer) {
-		// Separate code snippets from the answer using regex
+	async generateResponseParts(response) {
+		// Separate code snippets from the response using regex
 		const codeSnippetPattern = /```[\s\S]*?```/g;
-		const codeSnippets = Array.from(answer.matchAll(codeSnippetPattern)).map(m => m[0]);
-		const nonCodeParts = answer.split(codeSnippetPattern);
+		const codeSnippets = Array.from(response.matchAll(codeSnippetPattern)).map(m => m[0]);
+		const nonCodeParts = response.split(codeSnippetPattern);
 
 		// Combine non-code parts and code snippets into a new list
-		let answerParts = [];
+		let responseParts = [];
 		let snippetCount = codeSnippets.length;
 		for (let i = 0; i < nonCodeParts.length; i++) {
 			const nonCodePart = nonCodeParts[i].trim();
 			const codeSnippet = i < snippetCount ? codeSnippets[i].trim() : '';
 
 			if (nonCodePart) {
-				answerParts.push(nonCodePart);
+				responseParts.push(nonCodePart);
 			}
 			if (codeSnippet) {
-				answerParts.push(codeSnippet);
+				responseParts.push(codeSnippet);
 			}
 		}
 
-		// Split the answer parts if they exceed the character limit
+		// Split the response parts if they exceed the character limit
 		const maxLength = 2000;
-		let splitAnswerParts = [];
-		for (const part of answerParts) {
+		let splitResponseParts = [];
+		for (const part of responseParts) {
 			for (let i = 0; i < part.length; i += maxLength) {
 				const blockSize = Math.min(maxLength, part.length - i);
-				splitAnswerParts.push(part.substring(i, i + blockSize));
+				splitResponseParts.push(part.substring(i, i + blockSize));
 			}
 		}
 
-		return splitAnswerParts;
+		return splitResponseParts;
 	}
 };  
