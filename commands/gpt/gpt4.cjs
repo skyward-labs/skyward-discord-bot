@@ -11,24 +11,17 @@ module.exports = {
 			.setRequired(true)),
 
 	async execute(interaction) {
-		try {
-			await interaction.deferReply();
+		interaction.deferReply();
 
-			const response = await axios.get(`${openaiUrl}/discord`, {
-				params: { prompt: interaction.options.getString('prompt'), }
-			});
+		const response = await axios.get(`${openaiUrl}/discord`, {
+			params: { prompt: interaction.options.getString('prompt'), }
+		});
 
-			const responseParts = await this.generateResponseParts(response.data);
+		const responseParts = await this.generateResponseParts(response.data);
 
-			responseParts.forEach(async part => {
-				interaction.channel.send(part);
-			});
+		await Promise.all(responseParts.map(part => interaction.channel.send(part)));
 
-			await interaction.editReply('Done!');
-		}
-		catch (error) {
-			interaction.editReply({ content: `An exception has ocurred. ${error}` });
-		}
+		interaction.editReply('-----------------//-----------------');
 	},
 
 	async generateResponseParts(response) {
@@ -40,21 +33,18 @@ module.exports = {
 		// Combine non-code parts and code snippets into a new list
 		let responseParts = [];
 		let snippetCount = codeSnippets.length;
+		
 		for (let i = 0; i < nonCodeParts.length; i++) {
 			const nonCodePart = nonCodeParts[i].trim();
 			const codeSnippet = i < snippetCount ? codeSnippets[i].trim() : '';
-
-			if (nonCodePart) {
-				responseParts.push(nonCodePart);
-			}
-			if (codeSnippet) {
-				responseParts.push(codeSnippet);
-			}
+			if (nonCodePart) { responseParts.push(nonCodePart); }
+			if (codeSnippet) { responseParts.push(codeSnippet); }
 		}
 
 		// Split the response parts if they exceed the character limit
 		const maxLength = 2000;
 		let splitResponseParts = [];
+
 		for (const part of responseParts) {
 			for (let i = 0; i < part.length; i += maxLength) {
 				const blockSize = Math.min(maxLength, part.length - i);
@@ -63,5 +53,5 @@ module.exports = {
 		}
 
 		return splitResponseParts;
-	}
-};  
+	},
+};
