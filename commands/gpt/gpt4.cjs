@@ -13,15 +13,18 @@ module.exports = {
 	async execute(interaction) {
 		interaction.deferReply();
 
-		const response = await axios.get(`${openaiUrl}/discord`, {
-			params: { prompt: interaction.options.getString('prompt'), }
+		const response = await axios.get(`${openaiUrl}/discord/gpt-4`, {
+			params: {
+				channel_id : interaction.channel.id,
+				prompt: interaction.options.getString('prompt'),
+			},
 		});
 
 		const responseParts = await this.generateResponseParts(response.data);
 
 		await Promise.all(responseParts.map(part => interaction.channel.send(part)));
 
-		interaction.editReply('-----------------//-----------------');
+		interaction.editReply('----------------------------------//----------------------------------');
 	},
 
 	async generateResponseParts(response) {
